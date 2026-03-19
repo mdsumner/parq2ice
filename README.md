@@ -4,6 +4,61 @@ Convert a kerchunk-style parquet virtual reference store to an
 [icechunk](https://icechunk.io) transactional Zarr store — purely in Rust,
 no Python required.
 
+## tldr
+
+> (16.7M chunks, 89-byte URLs) genuinely exceeds icechunk 0.3.24's flatbuffers limit regardless of session/commit strategy. The Rust ManifestSplittingConfig API doesn't exist yet in 0.3.24 — it's Python-only. The right fix is either (a) wait for the Rust splitting API, (b) use virtual chunk containers to shrink per-ref size from 135 to ~25 bytes which would fit in one commit, or (c) use the Python icechunk API which has the splitting config today.
+
+for testing 
+
+```
+# Delete the previous test store first
+rm -rf target/test-icechunk
+
+# Run integration tests in release mode with output visible
+cargo test --release --test integration_test -- --nocapture
+
+Compiling parq2ice v0.1.0 parq2ice)
+    Finished `release` profile [optimized] target(s) in 9.34s
+     Running tests/integration_test.rs (target/release/deps/integration_test-ab2f29883ac8c41b)
+
+running 3 tests
+Building icechunk store at: parq2ice/target/test-icechunk/ocean_salt_2023
+Time: 0 chunk refs
+Time_bnds: 5479 chunk refs
+Time_bnds batch 1/1: committed EDSAG05CHJH9AMB529C0
+average_DT: 5479 chunk refs
+average_DT batch 1/1: committed WDJ1YSF00QZJFJT8RVTG
+average_T1: 5479 chunk refs
+average_T1 batch 1/1: committed J9FXS0E4FNF4Y7YN8WV0
+average_T2: 5479 chunk refs
+average_T2 batch 1/1: committed YPJQ4XEVFCD1C5W856M0
+nv: 0 chunk refs
+salt: 16765740 chunk refs
+salt batch 1/17: committed 76XED0BNJ3YCWG2RBGEG
+salt batch 2/17: committed XQE7H4R2AW4JT5TNB4G0
+salt batch 3/17: committed Q276WBVKY1D30RTT8W60
+test test_all_vars_imported has been running for over 60 seconds
+test test_build_icechunk_store_creates_repository has been running for over 60 seconds
+test test_virtual_refs_are_stored has been running for over 60 seconds
+salt batch 4/17: committed 5QC03NDGZS81WZGAE3Z0
+salt batch 5/17: committed TSKPHWRH7VGBF6742X60
+salt batch 6/17: committed FF2X4N6Z5Z2W9C3K9DXG
+salt batch 7/17: committed PFYKDVN0VV1BYX9GZBM0
+salt batch 8/17: committed NY1V7ZF3GWFPKDY99AB0
+salt batch 9/17: committed 7JW0ZHX6X96KN9TH2ZT0
+salt batch 10/17: committed 3J4DGCRRBVD5AADN9R90
+salt batch 11/17: committed QBEQGSBZ8JDPH0RCH9XG
+salt batch 12/17: committed E2Y1KAMZSJWFS6J56VWG
+salt batch 13/17: committed 59XJCW28WHA1ERZB05M0
+salt batch 14/17: committed 607ES92RB6Q2XPZE0TSG
+
+thread 'test_build_icechunk_store_creates_repository' (1537393) panicked at ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/flatbuffers-25.12.19/src/endian_scalar.rs:163:19:
+range start index 18446744071562067984 out of range for slice of length 2147483988
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test test_build_icechunk_store_creates_repository ... FAILED
+
+```
+
 ## What this does
 
 Kerchunk parquet stores describe large archival datasets (NetCDF, HDF5, etc.)
