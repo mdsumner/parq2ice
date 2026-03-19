@@ -1,0 +1,33 @@
+[package]
+name = "parq2ice"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Icechunk transactional Zarr store
+icechunk = "0.3"
+
+# Apache arrow-rs parquet reader — the canonical choice; no need for arrow2/parquet2
+# Use only the "arrow" feature if you want RecordBatch; here we read at the column level
+# so we avoid the full arrow dep and use the sync reader directly.
+parquet = { version = "53", default-features = false, features = ["snap"] }
+
+# serde_json for parsing .zmetadata
+serde_json = "1"
+serde = { version = "1", features = ["derive"] }
+
+# tokio: required by icechunk (all-async)
+tokio = { version = "1", features = ["full"] }
+
+# thiserror for clean error types
+thiserror = "2"
+
+# walkdir to enumerate var subdirectories
+walkdir = "2"
+
+[dev-dependencies]
+# tempfile for creating throwaway icechunk stores in tests
+tempfile = "3"
+
+# pretty_assertions for clearer test output
+pretty_assertions = "1"
