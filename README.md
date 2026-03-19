@@ -1,12 +1,13 @@
 # parq2ice
 
 Convert a kerchunk-style parquet virtual reference store to an
-[icechunk](https://icechunk.io) transactional Zarr store — purely in Rust,
-no Python required.
+[icechunk](https://icechunk.io) transactional Zarr store — an experiment in Rust. 
+
+See [hypertidy/zaro](https://github.com/hypertidy/zaro) for an alternative in R+Arrow, or [virtualized](https://github.com/mdsumner/virtualized?tab=readme-ov-file#example) for some examples using xarray, or GDAL (multidim + vsikerchunk) the traditional ways. 
 
 ## tldr
 
-> (16.7M chunks, 89-byte URLs) genuinely exceeds icechunk 0.3.24's flatbuffers limit regardless of session/commit strategy. The Rust ManifestSplittingConfig API doesn't exist yet in 0.3.24 — it's Python-only. The right fix is either (a) wait for the Rust splitting API, (b) use virtual chunk containers to shrink per-ref size from 135 to ~25 bytes which would fit in one commit, or (c) use the Python icechunk API which has the splitting config today.
+> (16.7M chunks, 89-byte URLs) genuinely exceeds icechunk 0.3.24's flatbuffers limit regardless of session/commit strategy. 
 
 for testing 
 
